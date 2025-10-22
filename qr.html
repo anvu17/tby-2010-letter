@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo mã QR/title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1em;
+            opacity: 0.9;
+        }
+        
+        /* Mode Toggle */
+        .mode-toggle {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .mode-toggle button {
+            padding: 12px 25px;
+            margin: 5px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: white;
+            color: #667eea;
+        }
+        .mode-toggle button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        /* Controls */
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .controls label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .controls select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .controls button {
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+            margin: 5px;
+            font-size: 13px;
+        }
+        .controls button:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Single Mode - Full Screen QR */
+        .single-mode {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .single-mode.active {
+            display: block;
+        }
+        .single-mode h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .single-mode .id-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        .single-mode .qr-code {
+            margin: 30px auto;
+            display: inline-block;
+        }
+        .single-mode .url {
+            font-size: 0.85em;
+            color: #666;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+        .single-mode .navigation {
+            margin-top: 30px;
+        }
+        .single-mode .navigation button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .nav-prev {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .nav-prev:hover {
+            background: #e0e0e0;
+        }
+        .nav-next {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .nav-next:hover {
+            transform: scale(1.05);
+        }
+        .nav-counter {
+            display: block;
+            margin: 15px 0;
+            font-size: 1.1em;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        /* Grid Mode */
+        .grid-mode {
+            display: none;
+        }
+        .grid-mode.active {
+            display: block;
+        }
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .qr-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .qr-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        }
+        .qr-card h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+        .qr-card .id {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+        .qr-code {
+            margin: 10px 0;
+        }
+        .qr-card .url {
+            font-size: 0.7em;
+            color: #999;
+            word-break: break-all;
+            margin-top: 8px;
+        }
+        .qr-card button {
+            margin: 3px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+        .btn-download {
+            background: #4CAF50;
+            color: white;
+        }
+        .btn-download:hover {
+            background: #45a049;
+        }
+        .btn-copy {
+            background: #2196F3;
+            color: white;
+        }
+        .btn-copy:hover {
+            background: #0b7dda;
+        }
+        .stats {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .stats span {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        /* Person Selector */
+        .person-selector {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .person-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .person-selector select {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .header, .controls, .stats, .mode-toggle, .navigation, .person-selector {
+                display: none !important;
+            }
+            .single-mode, .grid-mode {
+                display: block !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .header p {
+                font-size: 0.9em;
+            }
+            .single-mode h2 {
+                font-size: 1.5em;
+            }
+            .single-mode {
+                padding: 20px;
+            }
+            .qr-grid {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                text-align: center;
+            }
+            .controls label, .controls select, .controls button {
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎀 Tạo Mã QR - Thiệp 20/10 🎀</h1>
+            <p>Tạo mã QR để gửi thiệp chúc mừng đến từng người</p>
+        </div>
+
+        <!-- Mode Toggle -->
+        <div class="mode-toggle">
+            <button id="btnSingleMode" class="active" onclick="switchMode('single')">📱 Từng người</button>
+            <button id="btnGridMode" onclick="switchMode('grid')">🔲 Tất cả</button>
+        </div>
+
+        <!-- Single Person Mode -->
+        <div id="singleMode" class="single-mode active">
+            <div class="person-selector">
+                <label>👤 Chọn người:</label>
+                <select id="personSelect" onchange="showSingleQR()"></select>
+            </div>
+            
+            <div id="singleQRContainer">
+                <h2 id="singleName"></h2>
+                <div class="id-badge">ID: <span id="singleId"></span></div>
+                <div class="qr-code" id="singleQR"></div>
+                <div class="url" id="singleURL"></div>
+                
+                <div class="navigation">
+                    <button class="nav-prev" onclick="navigatePerson(-1)">⬅️ Trước</button>
+                    <button class="nav-next" onclick="navigatePerson(1)">Sau ➡️</button>
+                    <span class="nav-counter"><span id="currentIndex">1</span> / <span id="totalPeople">38</span></span>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="btn-download" onclick="downloadSingleQR()">📥 Tải QR</button>
+                    <button class="btn-copy" onclick="copySingleURL()">📋 Copy Link</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid Mode -->
+        <div id="gridMode" class="grid-mode">
+            <div class="controls">
+                <label>Kích thước QR:</label>
+                <select id="qrSize">
+                    <option value="200">Nhỏ (200x200)</option>
+                    <option value="300" selected>Trung bình (300x300)</option>
+                    <option value="400">Lớn (400x400)</option>
+                </select>
+                
+                <button onclick="generateAllQR()">🔄 Tạo lại</button>
+                <button onclick="window.print()">🖨️ In</button>
+                <button onclick="downloadAll()">📥 Tải ZIP</button>
+            </div>
+
+            <div class="stats">
+                <span id="totalCount">0</span> mã QR
+            </div>
+
+            <div id="qrGrid" class="qr-grid">
+                <div class="loading">Đang tạo mã QR...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- JSZip for downloading all QR codes -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- FileSaver for saving zip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        // Danh sách người nhận (copy từ messages.js)
+        const RECIPIENTS = {
+            "1": "Đặng Minh Anh",
+            "2": "Nguyễn Thị Ngọc Lan",
+            "3": "Lê Thị Diệu",
+            "4": "Nguyễn Thị Thu Hiền",
+            "5": "Đinh Thị Thu Hà",
+            "6": "Mai Thị Thảo",
+            "7": "Vũ Ngọc Dịu",
+            "8": "Nguyễn Thị Thanh Thuý",
+            "9": "Nguyễn Thị Mỹ Duyên",
+            "10": "Nguyễn Thảo Ly",
+            "12": "Lưu Hoài Thơm",
+            "13": "Nguyễn Thị Bích Thuỷ",
+            "14": "Nguyễn Thị Thanh",
+            "15": "Nguyễn Vũ Tuệ Minh",
+            "16": "Nguyễn Thị Phương Linh",
+            "17": "Nguyễn Thị Bảo Châu",
+            "18": "Vũ Thanh Hà",
+            "19": "Phạm Thị Hương",
+            "20": "Nguyễn Thanh Hiền",
+            "21": "Đoàn Thị Ngọc Anh",
+            "22": "Hoàng Lan Hương",
+            "23": "Lê Thị Quỳnh Như",
+            "24": "Trần Yến Nhi",
+            "25": "Nguyễn Thị Hoàng Yến",
+            "26": "Ngô Thị Thanh Hương",
+            "27": "Vũ Thị Ngọc Huyền",
+            "28": "Phạm Hà Thuy",
+            "29": "Phạm Thị Thu Trang",
+            "30": "Trần Thị Vân Khánh",
+            "31": "Vũ Khánh Linh",
+            "32": "Phạm Ngọc Huyền",
+            "33": "Phạm Hoài Anh",
+            "34": "Vũ Thị Minh Anh",
+            "35": "chị Thương Huyền",
+            "36": "chị Hà Thu",
+            "37": "chị Kiều Trinh",
+            "38": "chị Nga"
+        };
+
+        const BASE_URL = "https://anvu17.github.io/tby-2010-letter/";
+        
+        let currentPersonIndex = 0;
+        const recipientIds = Object.keys(RECIPIENTS);
+        
+        // Switch between single and grid mode
+        function switchMode(mode) {
+            const singleMode = document.getElementById('singleMode');
+            const gridMode = document.getElementById('gridMode');
+            const btnSingle = document.getElementById('btnSingleMode');
+            const btnGrid = document.getElementById('btnGridMode');
+            
+            if (mode === 'single') {
+                singleMode.classList.add('active');
+                gridMode.classList.remove('active');
+                btnSingle.classList.add('active');
+                btnGrid.classList.remove('active');
+                initSingleMode();
+            } else {
+                singleMode.classList.remove('active');
+                gridMode.classList.add('active');
+                btnSingle.classList.remove('active');
+                btnGrid.classList.add('active');
+                generateAllQR();
+            }
+        }
+        
+        // Initialize single mode
+        function initSingleMode() {
+            const select = document.getElementById('personSelect');
+            select.innerHTML = '';
+            
+            recipientIds.forEach((id, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${RECIPIENTS[id]} (ID: ${id})`;
+                select.appendChild(option);
+            });
+            
+            document.getElementById('totalPeople').textContent = recipientIds.length;
+            showSingleQR();
+        }
+        
+        // Show QR for selected person
+        function showSingleQR() {
+            const select = document.getElementById('personSelect');
+            currentPersonIndex = parseInt(select.value);
+            
+            const id = recipientIds[currentPersonIndex];
+            const name = RECIPIENTS[id];
+            const url = `${BASE_URL}?id=${id}`;
+            
+            document.getElementById('singleName').textContent = name;
+            document.getElementById('singleId').textContent = id;
+            document.getElementById('singleURL').textContent = url;
+            document.getElementById('currentIndex').textContent = currentPersonIndex + 1;
+            
+            // Clear and regenerate QR
+            const qrContainer = document.getElementById('singleQR');
+            qrContainer.innerHTML = '';
+            
+            new QRCode(qrContainer, {
+                text: url,
+                width: 350,
+                height: 350,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        // Navigate between people
+        function navigatePerson(direction) {
+            currentPersonIndex += direction;
+            
+            if (currentPersonIndex < 0) {
+                currentPersonIndex = recipientIds.length - 1;
+            } else if (currentPersonIndex >= recipientIds.length) {
+                currentPersonIndex = 0;
+            }
+            
+            document.getElementById('personSelect').value = currentPersonIndex;
+            showSingleQR();
+        }
+        
+        // Download single QR
+        function downloadSingleQR() {
+            const id = recipientIds[currentPersonIndex];
+            const name = RECIPIENTS[id];
+            const canvas = document.querySelector('#singleQR canvas');
+            
+            if (canvas) {
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `QR_${id}_${name.replace(/\s+/g, '_')}.png`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }
+        }
+        
+        // Copy single URL
+        function copySingleURL() {
+            const url = document.getElementById('singleURL').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ Đã copy link: ' + url);
+            });
+        }
+
+        function generateAllQR() {
+            const qrSize = parseInt(document.getElementById('qrSize').value);
+            const grid = document.getElementById('qrGrid');
+            grid.innerHTML = '';
+
+            Object.keys(RECIPIENTS).forEach(id => {
+                const name = RECIPIENTS[id];
+                const url = `${BASE_URL}?id=${id}`;
+                
+                const card = document.createElement('div');
+                card.className = 'qr-card';
+                card.innerHTML = `
+                    <h3>${name}</h3>
+                    <div class="id">ID: ${id}</div>
+                    <div class="qr-code" id="qr-${id}"></div>
+                    <div class="url">${url}</div>
+                    <button class="btn-download" onclick="downloadQR('${id}', '${name}')">📥 Tải QR</button>
+                    <button class="btn-copy" onclick="copyURL('${url}')">📋 Copy Link</button>
+                `;
+                grid.appendChild(card);
+
+                // Generate QR code
+                new QRCode(document.getElementById(`qr-${id}`), {
+                    text: url,
+                    width: qrSize,
+                    height: qrSize,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            });
+
+            document.getElementById('totalCount').textContent = Object.keys(RECIPIENTS).length;
+        }
+
+        function downloadQR(id, name) {
+            const qrElement = document.querySelector(`#qr-${id} img`);
+            if (!qrElement) return;
+
+            const canvas = document.querySelector(`#qr-${id} canvas`);
+            if (canvas) {
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `QR_${id}_${name.replace(/\s+/g, '_')}.png`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }
+        }
+
+        function copyURL(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ Đã copy link: ' + url);
+            });
+        }
+
+        async function downloadAll() {
+            const zip = new JSZip();
+            const folder = zip.folder("QR_Codes_20-10");
+
+            for (const id of Object.keys(RECIPIENTS)) {
+                const name = RECIPIENTS[id];
+                const canvas = document.querySelector(`#qr-${id} canvas`);
+                if (canvas) {
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve));
+                    folder.file(`QR_${id}_${name.replace(/\s+/g, '_')}.png`, blob);
+                }
+            }
+
+            zip.generateAsync({type:"blob"}).then(content => {
+                saveAs(content, "QR_Codes_20-10.zip");
+            });
+        }
+
+        // Generate QR codes on page load
+        window.addEventListener('load', () => {
+            initSingleMode(); // Start with single mode
+        });
+    </script>
+</body>
+</html>

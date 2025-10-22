@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nhấn tiếp vào đây điiiii</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./style/style.css">
+</head>
+<body>
+    <div class="envlope-wrapper">
+        <div id="envelope" class="close">
+            <div class="wax-seal"></div>
+            <div class="front flap"></div>
+            <div class="front pocket"></div>
+            <div class="letter">
+                <div class="letter-corner corner-tl"></div>
+                <div class="letter-corner corner-br"></div>
+                <div class="message">
+                    <div class="lyrics" id="lyricsContainer"></div>
+                    <div class="image-container" id="imageContainer" style="display:none;">
+                        <img id="recipientImage" alt="Hình ảnh" />
+                    </div>
+                </div>
+            </div>
+            <div class="hearts">
+                <div class="heart a1"></div>
+                <div class="heart a2"></div>
+                <div class="heart a3"></div>
+            </div>
+            <div class="sparkles">
+                <div class="sparkle s1"></div>
+                <div class="sparkle s2"></div>
+                <div class="sparkle s3"></div>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="openBtn">Mở</button>
+        <button id="resetBtn" style="display: none;">Đóng</button>
+    <button id="w20Btn" class="w20-btn" style="display:none;">Nhấn tiếp vào đây điiiii ><<m</button>
+    </div>
+    <audio id="sound" loop>
+      <source src="./style/audio.mp3" type="audio/mpeg" />
+    </audio>
+
+        <!-- Popup 20/10 overlay -->
+            <div id="popupContainer" style="display:none;">
+            <audio id="backgroundMusic" src="./assets/music.mp3" loop></audio>
+            <button id="exitButton">Thoát 🎀</button>
+        </div>
+
+        <!-- Pre-start tip overlay -->
+        <div id="preStart" class="prestart-overlay" style="display:none;">
+            <div class="prestart-box">
+                <p class="prestart-text">Cười tươi, xinh gái trước, trong và sau khi xem để có trải nghiệm tốt nhất ‼️</p>
+                <button id="preStartOk" class="prestart-ok">Đã sẵn sàng 😄</button>
+            </div>
+        </div>
+
+        <!-- Post-thanks overlay after exiting 20/10 popup -->
+        <div id="postThanks" class="prestart-overlay" style="display:none;">
+            <div class="prestart-box">
+                <p class="prestart-text">Cảm ơn đã trở thành một phần thanh xuân của chúng mình. Love you ˚ʚ♡ɞ˚</p>
+                <button id="postThanksOk" class="prestart-ok">Đã đọc ❤️</button>
+            </div>
+        </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./style/ids.js"></script>
+    <script src="./style/messages.js"></script>
+    <script src="./style/script.js"></script>
+</body>
+</html>
